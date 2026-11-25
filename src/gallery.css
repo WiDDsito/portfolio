@@ -1,0 +1,310 @@
+.site-header {position:relative;background:transparent}
+.top nav {margin-left:auto}
+.menu-open,.menu-close {border:1px solid var(--line);background:transparent;border-radius:50%;width:44px;height:44px;display:grid;place-content:center;gap:5px}
+.menu-open i {width:18px;height:1px;background:currentColor}
+#indice {position:fixed;inset:0;width:100%;height:100%;max-width:none;max-height:none;margin:0;border:0;background:var(--night);color:var(--ink);padding:var(--gutter)}
+#indice nav {height:100%;display:flex;align-items:flex-start;justify-content:center;flex-direction:column;gap:1rem}
+#indice a {font:700 clamp(2rem,8vw,7rem)/1 var(--display);letter-spacing:-.04em}
+.menu-close {position:absolute;right:var(--gutter);top:2rem;width:auto;padding:0 1rem;border-radius:2rem}
+.work {padding-top:clamp(1.5rem,4vw,4rem)}
+.work-heading>div:first-child {display:flex;align-items:flex-end;justify-content:space-between;gap:2rem;flex:1}
+.work-subtitle {margin:0 0 .3rem;font-size:1rem}
+.work h1 {font-size:clamp(4rem,9vw,8rem)}
+.work-heading {align-items:flex-end}
+/* The images form an edge-to-edge horizontal strip on the page background. */
+.projects {
+  --slide-width: 77%;
+  --slide-gap: clamp(.5rem, 1vw, 1rem);
+  scrollbar-width: thin;
+  scrollbar-color: var(--line) transparent;
+}
+.projects .project-cover,
+.projects .project-link:is(:hover, :focus-visible) .project-cover {
+  display: block;
+  border: none;
+  border-radius: 0;
+  background: transparent;
+  padding: 0;
+  min-height: 0;
+  aspect-ratio: 16 / 9;
+}
+.project-preview {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center top;
+  transition: transform .75s var(--ease);
+}
+.projects .project-aura {
+  z-index: 1;
+  inset: 0;
+  pointer-events: none;
+  background: radial-gradient(circle at var(--glow-x,50%) var(--glow-y,50%), #fff5, transparent 45%);
+  opacity: 0;
+  transform: none;
+  mix-blend-mode: soft-light;
+}
+.projects .project-link:is(:hover, :focus-visible) .project-aura { opacity: 1; }
+.project-details small {
+  display: block;
+  font: 400 .875rem/1.5 "Instrument Sans", sans-serif;
+  letter-spacing: 0;
+  color: var(--quiet);
+  margin-bottom: .25rem;
+}
+@media (prefers-reduced-motion: no-preference) {
+  .project-link:is(:hover, :focus-visible) .project-preview { transform: scale(1.025); }
+}
+.specialties {display:grid;grid-template-columns:repeat(4,1fr);position:relative;padding-bottom:8rem;align-items:start}
+.specialties button {display:grid;justify-items:start;gap:.5rem;border:0;background:transparent;font:700 1.2rem var(--display);padding:.65rem}
+.specialties button img {width:2.5rem;transition:transform .35s var(--ease)}
+.specialties button[aria-expanded=true] {color:var(--lime)}
+.specialties button[aria-expanded=true] img {transform:translateY(-4px) rotate(-6deg)}
+@keyframes page-in {from {transform:translateX(1rem);opacity:.3}}
+.experience {padding-block:clamp(3rem,8vw,7rem)}
+.scene-intro {color:var(--quiet);margin:1rem 0}
+.experience .art {min-height:clamp(27rem,54vw,43rem)}
+.experience .experiments {border:0}
+.scene-overlay {border:0;background:#101019df;width:100%;padding-inline:3%}
+@media(prefers-reduced-motion:no-preference){
+ dialog[open] nav a {animation:page-in .5s var(--ease)}
+}
+@media(max-width:760px){
+ .top nav {display:none}.top {flex-wrap:nowrap}
+ .work-heading>div:first-child {display:block}.work-subtitle {margin-top:.8rem;font-size:.9rem}
+ .projects {--slide-width:88%}
+ .specialties {min-height:13rem}.work-heading {gap:.75rem}
+}
+@media(max-width:440px){.work h1{font-size:3.6rem}.work-heading{display:block}.work-subtitle{max-width:15rem;font-size:.8rem}}
+
+.reading-progress {
+  position: fixed;
+  z-index: 5;
+  inset: 0 0 auto;
+  height: 2px;
+  pointer-events: none;
+  background: var(--lime);
+  transform-origin: left;
+}
+#titulo-proyectos { position: relative; }
+.work h1 .title-piece { display: inline-block; color: inherit; }
+.work h1 .title-dot { display: inline-block; }
+.specialty-detail { grid-column: 1 / -1; min-height: 6rem; padding: 1rem .65rem 0; }
+.specialties { padding-bottom: 0; }
+@media (prefers-reduced-motion: reduce) {
+  .reading-progress { display: none; }
+}
+
+.site-intro {
+  --assembly: 0;
+  position: fixed;
+  z-index: 10;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  pointer-events: none;
+  background: var(--night);
+}
+.site-intro[data-assembled="true"] {
+  animation: intro-release .33s var(--ease) both;
+}
+.intro-defs { position: absolute; }
+#intro-wordmark { font: 800 102px var(--display); letter-spacing: -.04em; }
+.intro-piece {
+  position: absolute;
+  width: min(76vw, 36rem);
+  overflow: visible;
+  fill: var(--ink);
+  transform: translate(
+    calc(var(--burst-x) * (1 - var(--assembly))),
+    calc(var(--burst-y) * (1 - var(--assembly))))
+    rotate(calc(var(--burst-turn) * (1 - var(--assembly))));
+}
+.intro-load {
+  position: absolute;
+  bottom: 12%;
+  width: min(26%, 9rem);
+  height: 2px;
+  background: var(--lime);
+  transform-origin: left;
+  transform: scaleX(calc(.08 + var(--assembly) * .92));
+}
+@keyframes intro-release { to { opacity: 0; } }
+.portrait picture { display: block; width: 100%; height: 100%; }
+
+@media (prefers-reduced-motion: no-preference) {
+  @supports (animation-timeline: view()) {
+    .projects:not(:focus-within):not(.dragging) {
+      animation: gallery-retreat linear both;
+      animation-timeline: view();
+      animation-range: exit 0% exit 55%;
+    }
+    .experience .art {
+      view-timeline-name: --studio;
+      animation: scene-unfold linear both;
+      animation-timeline: --studio;
+      animation-range: entry 0% entry 74%;
+    }
+    .scene-intro {
+      animation: story-reveal linear both;
+      animation-timeline: view();
+      animation-range: entry 0% cover 18%;
+    }
+    .scene-overlay:not(:focus-within) {
+      animation: story-reveal linear both;
+      animation-timeline: --studio;
+      animation-range: entry 55% entry 100%;
+    }
+    .contact { view-timeline-name: --conversation; }
+    .contact-intro, .contact-panel:not(:focus-within) {
+      animation: story-reveal linear both;
+      animation-timeline: --conversation;
+    }
+    .contact-intro { animation-range: entry 0% entry 46%; }
+    .contact-panel:not(:focus-within) { animation-range: entry 16% entry 78%; }
+  }
+}
+@keyframes gallery-retreat {
+  from { opacity: 1; scale: 1; }
+  to { opacity: .48; scale: .98; }
+}
+@keyframes story-reveal {
+  from { opacity: .48; transform: translateY(1rem); }
+  to { opacity: 1; transform: none; }
+}
+@keyframes scene-unfold {
+  from { clip-path: inset(3% 7% 3% round 1.5rem); }
+  to { clip-path: inset(0); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .site-intro { display: none; }
+}
+
+@media (hover: hover) and (pointer: fine) and (prefers-reduced-motion: no-preference) {
+  main > section {
+    position: relative;
+    isolation: isolate;
+  }
+  main > section::before {
+    content: "";
+    position: absolute;
+    z-index: -1;
+    inset: 0;
+    opacity: 0;
+    pointer-events: none;
+    background: radial-gradient(circle 16rem at var(--pointer-x, 50%) var(--pointer-y, 50%), var(--section-light), transparent);
+    transition: opacity .3s var(--ease);
+  }
+  main > section:hover::before { opacity: 1; }
+  .work { --section-light: #e4d9b714; }
+  .about { --section-light: #b4a3ff1f; }
+  .experience { --section-light: #aec4ed1a; }
+  .contact { --section-light: #defb8c1a; }
+  .contact-links .button:is(:hover, :focus-visible) {
+    translate: 0 -.16rem;
+  }
+  .view-buttons button:active, .art-controls .rotate:active, .specialties button:active {
+    scale: .95;
+  }
+}
+
+/* Let the gallery and scene reach the screen edge, with padding on their text only. */
+#root {
+  --gutter: clamp(.875rem, 2vw, 2.25rem);
+}
+#root .wrap {
+  width: 100%;
+  padding-inline: var(--gutter);
+}
+#root .work > .wrap,
+#root .experience {
+  padding-inline: 0;
+}
+.work-heading, .carousel-hint, .experience > :is(h2, p) {
+  padding-inline: var(--gutter);
+}
+.projects .project-details {
+  padding-inline: var(--gutter);
+}
+#root .scene-overlay {
+  padding-inline: var(--gutter);
+}
+.about .portrait {
+  width: 100%;
+  aspect-ratio: 4 / 4.6;
+  max-height: 78svh;
+}
+.about .portrait:hover { border-radius: 12% 33% 12% 12% / 12% 24% 12% 12%; }
+@media (hover: hover) and (prefers-reduced-motion: no-preference) {
+  .about .portrait:hover img { transform: scale(1.02); }
+}
+
+.scene-title {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0 .22em;
+  perspective: 650px;
+}
+.scene-title .scene-title-word {
+  display: inline-flex;
+  color: inherit;
+}
+.scene-title .scene-title-face {
+  display: inline-block;
+  color: inherit;
+}
+.scene-title-face > span {
+  display: inline-block;
+  color: inherit;
+}
+.scene-title-word:last-child .scene-title-face:last-child { color: var(--lime); }
+
+@media (prefers-reduced-motion: no-preference) {
+  .scene-title-face > span {
+    transform: perspective(600px) rotateX(var(--orbit-x, 0deg)) rotateY(var(--orbit-y, 0deg));
+    text-shadow: 1px 1px var(--line), 2px 2px var(--line), 3px 3px var(--line);
+  }
+
+  @supports (animation-timeline: view()) {
+    .about-copy { view-timeline-name: --profile; }
+    .about-copy > * {
+      --start: 0%;
+      --end: 62%;
+      animation: profile-build linear both;
+      animation-timeline: --profile;
+      animation-range: entry var(--start) entry var(--end);
+    }
+    .about-copy > h3 { --start: 12%; --end: 71%; }
+    .about-copy > .role { --start: 22%; --end: 81%; }
+    .about-copy > p:last-child { --start: 34%; --end: 97%; }
+
+    .portrait picture {
+      animation: photo-build linear both;
+      animation-timeline: view();
+      animation-range: entry 0% entry 80%;
+    }
+    .scene-title { view-timeline-name: --letter-orbit; }
+    .scene-title-face {
+      animation: orbit-letter linear both;
+      animation-timeline: --letter-orbit;
+      animation-range:
+        entry calc(var(--letter) * 2.8%)
+        cover calc(14% + var(--letter) * 1.4%);
+    }
+  }
+}
+@keyframes profile-build {
+  from { opacity: .2; transform: translateY(1.35rem); }
+  to { opacity: 1; transform: none; }
+}
+@keyframes photo-build {
+  from { opacity: .72; transform: translateY(.45rem) scale(1.025); }
+  to { opacity: 1; transform: none; }
+}
+@keyframes orbit-letter {
+  from { opacity: .18; transform: perspective(500px) translateZ(-160px) rotateX(52deg) rotateY(-108deg); }
+  68% { opacity: .84; transform: perspective(500px) translateZ(9px) rotateX(-10deg) rotateY(12deg); }
+  to { opacity: 1; transform: none; }
+}
