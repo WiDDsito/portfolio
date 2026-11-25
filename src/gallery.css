@@ -36,16 +36,6 @@
   object-position: center top;
   transition: transform .75s var(--ease);
 }
-.projects .project-aura {
-  z-index: 1;
-  inset: 0;
-  pointer-events: none;
-  background: radial-gradient(circle at var(--glow-x,50%) var(--glow-y,50%), #fff5, transparent 45%);
-  opacity: 0;
-  transform: none;
-  mix-blend-mode: soft-light;
-}
-.projects .project-link:is(:hover, :focus-visible) .project-aura { opacity: 1; }
 .project-details small {
   display: block;
   font: 400 .875rem/1.5 "Instrument Sans", sans-serif;
@@ -175,33 +165,27 @@
   to { opacity: 1; transform: none; }
 }
 @keyframes scene-unfold {
-  from { clip-path: inset(3% 7% 3% round 1.5rem); }
-  to { clip-path: inset(0); }
+  from { opacity: .65; transform: translateY(.85rem) scale(.985); }
+  to { opacity: 1; transform: none; }
 }
 @media (prefers-reduced-motion: reduce) {
   .site-intro { display: none; }
 }
 
 @media (hover: hover) and (pointer: fine) and (prefers-reduced-motion: no-preference) {
-  main > section {
-    position: relative;
-    isolation: isolate;
-  }
-  main > section::before {
-    content: "";
-    position: absolute;
-    z-index: -1;
-    inset: 0;
-    opacity: 0;
+  .pointer-light {
+    position: fixed;
+    z-index: 3;
+    inset: 0 auto auto 0;
+    width: 18rem;
+    aspect-ratio: 1;
     pointer-events: none;
-    background: radial-gradient(circle 16rem at var(--pointer-x, 50%) var(--pointer-y, 50%), var(--section-light), transparent);
-    transition: opacity .3s var(--ease);
+    background: radial-gradient(circle, #b4a3ff16, transparent 70%);
+    opacity: 0;
+    transition: opacity .18s ease-out;
   }
-  main > section:hover::before { opacity: 1; }
-  .work { --section-light: #e4d9b714; }
-  .about { --section-light: #b4a3ff1f; }
-  .experience { --section-light: #aec4ed1a; }
-  .contact { --section-light: #defb8c1a; }
+  .pointer-light[data-tone]:not([data-tone=""]) { opacity: 1; }
+  .pointer-light[data-tone="cover"] { opacity: .65; }
   .contact-links .button:is(:hover, :focus-visible) {
     translate: 0 -.16rem;
   }

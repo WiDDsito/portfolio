@@ -9,17 +9,46 @@ export function Scene() {
     const node = figure.current;
     let mounted = true;
     let release;
-    const observer = new IntersectionObserver(async ([entry]) => {
-      if (!entry.isIntersecting) return;
-      observer.disconnect();
-      try {
-        const { mountGalleryScene } = await import("./forma.js");
-        if (mounted) release = mountGalleryScene(node);
-      } catch {
-        // Keep the static preview when WebGL cannot load.
+    let sceneModule;
+    let visible = false;
+    let timer;
+    let idle;
+    function cancelStart() {
+      clearTimeout(timer);
+      if (idle !== undefined) window.cancelIdleCallback(idle);
+    }
+    function scheduleStart() {
+      cancelStart();
+      if (!mounted || !visible || !sceneModule) return;
+      timer = setTimeout(() => {
+        const start = () => {
+          if (!mounted || !visible) return;
+          observer.disconnect();
+          window.removeEventListener("scroll", scheduleStart);
+          try {
+            release = sceneModule.mountGalleryScene(node);
+          } catch {
+            // Keep the static preview when WebGL cannot load.
+          }
+        };
+        if (window.requestIdleCallback) idle = window.requestIdleCallback(start);
+        else start();
+      }, 150);
+    }
+
+    const observer = new IntersectionObserver(([entry]) => {
+      visible = entry.isIntersecting;
+      if (!visible) {
+        cancelStart();
+        return;
       }
-    }, { rootMargin: "250px" });
+      import("./forma.js").then(module => {
+        sceneModule = module;
+        scheduleStart();
+      }).catch(() => observer.disconnect());
+    }, { threshold: .12 });
     observer.observe(node);
+    window.addEventListener("scroll", scheduleStart, { passive: true });
 
     const mute = () => {
       audio.current?.suspend();
@@ -33,6 +62,8 @@ export function Scene() {
     document.addEventListener("visibilitychange", onVisibility);
     return () => {
       mounted = false;
+      cancelStart();
+      window.removeEventListener("scroll", scheduleStart);
       observer.disconnect();
       soundObserver.disconnect();
       document.removeEventListener("visibilitychange", onVisibility);

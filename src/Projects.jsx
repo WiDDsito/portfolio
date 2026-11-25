@@ -31,28 +31,17 @@ function Project({ item, current, index, reduced, ready }) {
   const { id, title, domain, genre, height } = item;
   const delay = .28 + index * .17;
 
-  function updateGlow(event) {
-    if (reduced || event.pointerType !== "mouse") return;
-    const cover = event.currentTarget;
-    const rect = cover.getBoundingClientRect();
-    const x = (event.clientX - rect.left) / rect.width;
-    const y = (event.clientY - rect.top) / rect.height;
-    cover.style.setProperty("--glow-x", x * 100 + "%");
-    cover.style.setProperty("--glow-y", y * 100 + "%");
-  }
-
   return (
     <article className={'project project-' + id} data-current={current || undefined} id={'project-' + id}>
       <a className="project-link" href={'https://' + domain} target="_blank" rel="noopener"
         aria-labelledby={'nombre-' + id + ' accion-' + id} draggable={false}>
-        <m.div className="project-cover" onPointerMove={updateGlow}
+        <m.div className="project-cover"
           initial={reduced ? false : coverIn}
           animate={reduced || ready ? coverOpen : undefined}
           transition={{ duration: reduced ? 0 : .92, delay, ease }}>
           <img className="project-preview" src={'/media/' + (id === "masiva" ? "masivahome" : "alexurresty") + '.webp'}
             width={1360} height={height} alt={'Vista previa de ' + title} decoding="async"
             loading={index ? "lazy" : "eager"} fetchPriority={index ? "auto" : "high"} draggable={false} />
-          <div className="project-aura" aria-hidden="true" />
         </m.div>
         <m.div className="project-details"
           initial={reduced ? false : captionIn}

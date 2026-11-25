@@ -9,7 +9,7 @@ export function mountGalleryScene(figure) {
 
   let renderer;
   try {
-    renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
+    renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
   } catch {
     label.textContent = "Vista previa";
   }
@@ -26,7 +26,7 @@ function mountStudy(renderer, figure, canvas, surface, controls, label, motion) 
   scene.add(object);
   object.position.y = 0.24;
   camera.position.z = 7.9;
-  renderer.setClearColor(0, 0);
+  renderer.setClearColor(0);
   renderer.toneMapping = THREE.ACESFilmicToneMapping;
   renderer.toneMappingExposure = 1.16;
 
@@ -100,11 +100,14 @@ function mountStudy(renderer, figure, canvas, surface, controls, label, motion) 
   let frame = 0;
   let gesture = null;
   let visible = true;
+  let lastStation = 0;
+  let orbitYaw;
+  let orbitPitch;
 
   const resize = new ResizeObserver(() => {
     const { clientWidth: width, clientHeight: height } = surface;
     if (!width || !height) return;
-    renderer.setPixelRatio(Math.min(devicePixelRatio || 1, 1.7));
+    renderer.setPixelRatio(Math.min(devicePixelRatio || 1, 1.35, Math.sqrt(1300000 / (width * height))));
     renderer.setSize(width, height, false);
     camera.aspect = width / height;
     camera.position.z = 0;
@@ -237,12 +240,17 @@ function mountStudy(renderer, figure, canvas, surface, controls, label, motion) 
     camera.rotation.order = "YXZ";
     camera.rotation.set(pitch * .4, yaw, 0);
     if (!reduced) {
-      heading?.style.setProperty("--orbit-y", Math.sin(yaw) * 25 + "deg");
-      heading?.style.setProperty("--orbit-x", -pitch * 14 + "deg");
+      if (yaw !== orbitYaw) heading?.style.setProperty("--orbit-y", Math.sin(yaw) * 25 + "deg");
+      if (pitch !== orbitPitch) heading?.style.setProperty("--orbit-x", -pitch * 14 + "deg");
+      orbitYaw = yaw;
+      orbitPitch = pitch;
     }
     object.rotation.set(.48 - entrance * .38, -.22 - entrance * .95, -.25);
     const station = Math.round(yaw / (Math.PI * 2 / 3));
-    caption.textContent = names[((station % 3) + 3) % 3];
+    if (station !== lastStation) {
+      caption.textContent = names[((station % 3) + 3) % 3];
+      lastStation = station;
+    }
     for (const exhibit of exhibits.slice(1)) exhibit.children[0].material.wireframe = blend >= .5;
     object.scale.setScalar(1 - entrance * 0.26);
     solid.visible = blend < 0.995;

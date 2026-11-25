@@ -25,7 +25,7 @@
   --ease: cubic-bezier(.16, 1, .3, 1);
 }
 * { box-sizing: border-box; }
-html { scroll-behavior: smooth; scroll-padding-block-start: var(--header-height, 6rem); }
+html { scroll-padding-block-start: var(--header-height, 6rem); }
 body { margin: 0; background: var(--night); color: var(--ink); font: 1rem/1.6 "Instrument Sans", sans-serif; }
 ::selection { color: var(--night); background: var(--lime); }
 :focus-visible { outline: 2px solid var(--lime); outline-offset: 5px; }

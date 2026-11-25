@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { createRoot } from "react-dom/client";
-import { LazyMotion, domAnimation, MotionConfig, useScroll, useSpring } from "motion/react";
+import { LazyMotion, domAnimation, MotionConfig, useReducedMotion, useScroll } from "motion/react";
 import * as m from "motion/react-m";
 import { Projects } from "./Projects";
 import { About } from "./About";
@@ -18,16 +18,26 @@ function Header() {
   const dialog = useRef(null);
   const [active, setActive] = useState(sections[0][0]);
   useEffect(() => {
-    function update() {
-      const section = sections.findLast(([id]) => document.getElementById(id).getBoundingClientRect().top < innerHeight * .4);
-      setActive(section?.[0] ?? sections[0][0]);
+    const targets = sections.map(([id]) => document.getElementById(id));
+    let observer;
+    function observe() {
+      observer?.disconnect();
+      const visible = new Set();
+      observer = new IntersectionObserver(entries => {
+        for (const entry of entries) {
+          if (entry.isIntersecting) visible.add(entry.target);
+          else visible.delete(entry.target);
+        }
+        const current = targets.findLast(section => visible.has(section));
+        if (current) setActive(current.id);
+      }, { rootMargin: `0px 0px -${Math.round(innerHeight * .6)}px 0px` });
+      for (const target of targets) observer.observe(target);
     }
-    update();
-    window.addEventListener("scroll", update, { passive: true });
-    window.addEventListener("resize", update);
+    observe();
+    window.addEventListener("resize", observe);
     return () => {
-      window.removeEventListener("scroll", update);
-      window.removeEventListener("resize", update);
+      observer.disconnect();
+      window.removeEventListener("resize", observe);
     };
   }, []);
 
@@ -54,13 +64,49 @@ function Header() {
   );
 }
 
-function trackSectionPointer(event) {
-  if (event.pointerType !== "mouse" || !matchMedia("(prefers-reduced-motion: no-preference)").matches) return;
-  const section = event.target.closest("main > section");
-  if (!section) return;
-  const bounds = section.getBoundingClientRect();
-  section.style.setProperty("--pointer-x", event.clientX - bounds.left + "px");
-  section.style.setProperty("--pointer-y", event.clientY - bounds.top + "px");
+function usePointerGlow() {
+  const glow = useRef(null);
+  const reduced = useReducedMotion();
+
+  useEffect(() => {
+    if (reduced || !matchMedia("(hover: hover) and (pointer: fine)").matches) return;
+    const node = glow.current;
+    const main = node.parentElement;
+    let frame = 0;
+    let point;
+
+    function draw() {
+      frame = 0;
+      node.style.transform = `translate3d(${point.x}px, ${point.y}px, 0) translate(-50%, -50%)`;
+      node.dataset.tone = point.tone;
+    }
+
+    function move(event) {
+      if (event.pointerType !== "mouse") return;
+      const cover = event.target.closest(".project-cover");
+      const section = event.target.closest("main > section");
+      point = { x: event.clientX, y: event.clientY, tone: cover ? "cover" : section?.id ?? "" };
+      if (!frame) frame = requestAnimationFrame(draw);
+    }
+
+    function hide() {
+      cancelAnimationFrame(frame);
+      frame = 0;
+      node.dataset.tone = "";
+    }
+
+    main.addEventListener("pointermove", move, { passive: true });
+    main.addEventListener("pointerleave", hide);
+    window.addEventListener("scroll", hide, { passive: true });
+    return () => {
+      hide();
+      main.removeEventListener("pointermove", move);
+      main.removeEventListener("pointerleave", hide);
+      window.removeEventListener("scroll", hide);
+    };
+  }, [reduced]);
+
+  return glow;
 }
 
 function ExperienceTitle() {
@@ -86,7 +132,7 @@ function App() {
   const finishIntro = useCallback(() => setIntroOpen(false), []);
 
   const { scrollYProgress } = useScroll();
-  const progress = useSpring(scrollYProgress, { damping: 25, stiffness: 185 });
+  const glow = usePointerGlow();
   useEffect(() => {
     if (location.hash) document.getElementById(location.hash.slice(1))?.scrollIntoView({ behavior: "instant" });
   }, []);
@@ -94,10 +140,11 @@ function App() {
     <MotionConfig reducedMotion="user">
       <LazyMotion features={domAnimation} strict>
       {introOpen && <Intro onFinish={finishIntro} />}
-      <m.div className="reading-progress" aria-hidden="true" style={{ scaleX: progress }} />
+      <m.div className="reading-progress" aria-hidden="true" style={{ scaleX: scrollYProgress }} />
       <a className="skip" href="#contenido">Saltar al contenido</a>
       <Header />
-      <main id="contenido" tabIndex={-1} onPointerMove={trackSectionPointer}>
+      <main id="contenido" tabIndex={-1}>
+        <div ref={glow} className="pointer-light" aria-hidden="true" />
         <Projects ready={!introOpen} />
         <About />
         <section className="wrap section experience" id="experiencia" aria-labelledby="experience-title">
